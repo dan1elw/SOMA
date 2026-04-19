@@ -1,5 +1,10 @@
 # SOMA – Satellite Orbit Monitoring Application
 
+<p align="center">
+  <img src="docs/logo/soma.ico" />
+</p>
+
+
 **Sieh in Echtzeit, wo Satelliten gerade über dich hinwegfliegen.**
 
 SOMA ist eine Web-Anwendung, die Satelliten live auf einer dunklen Weltkarte zeigt – inklusive ihres Flugwegs der letzten 90 Minuten. Öffne die Seite im Browser, und du siehst sofort die Internationale Raumstation (ISS), wie sie mit rund 28.000 km/h um die Erde kreist. Über eine Suchleiste kannst du weitere Satelliten hinzufügen – zum Beispiel das Hubble-Weltraumteleskop, Starlink-Satelliten oder jeden anderen der rund 11.000 aktiven Objekte im Erdorbit.
@@ -41,14 +46,6 @@ SOMA richtet sich an Raumfahrt-Interessierte, Lehrende, Schüler und alle, die e
 ## Technischer Hintergrund (Kurzfassung)
 
 SOMA ist eine Progressive Web App, gebaut mit React, TypeScript und MapLibre GL JS. Orbit-Berechnungen laufen in einem Web Worker, damit die Oberfläche auch bei vielen Satelliten flüssig bleibt. Als Datenquelle dient CelesTrak. Die Karte basiert auf dem frei verfügbaren CARTO Dark Matter Style.
-
-## Status
-
-SOMA befindet sich in der Anfangsphase der Entwicklung. Das vollständige technische Konzept liegt vor; die Implementierung startet jetzt.
-
-## Lizenz
-
-MIT – frei nutzbar, frei veränderbar.
 
 ## Quellen & Weiterführendes
 
