@@ -1,17 +1,18 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 
 const CARTO_DARK_MATTER = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
-export function useMap(
-  container: React.RefObject<HTMLDivElement | null>,
-): React.RefObject<maplibregl.Map | null> {
-  const mapRef = useRef<maplibregl.Map | null>(null)
+export function useMap(container: React.RefObject<HTMLDivElement | null>): maplibregl.Map | null {
+  const instanceRef = useRef<maplibregl.Map | null>(null)
+  const [map, setMap] = useState<maplibregl.Map | null>(null)
 
   useEffect(() => {
-    if (!container.current || mapRef.current) return
+    if (!container.current || instanceRef.current) return
 
-    mapRef.current = new maplibregl.Map({
+    let mounted = true
+
+    const m = new maplibregl.Map({
       container: container.current,
       style: CARTO_DARK_MATTER,
       center: [0, 20],
@@ -19,12 +20,26 @@ export function useMap(
       minZoom: 1,
       attributionControl: { compact: true },
     })
+    instanceRef.current = m
+
+    const onLoad = () => {
+      if (mounted) setMap(m)
+    }
+
+    if (m.loaded()) {
+      onLoad()
+    } else {
+      m.once('load', onLoad)
+    }
 
     return () => {
-      mapRef.current?.remove()
-      mapRef.current = null
+      mounted = false
+      m.off('load', onLoad)
+      m.remove()
+      instanceRef.current = null
+      setMap(null)
     }
   }, [container])
 
-  return mapRef
+  return map
 }
