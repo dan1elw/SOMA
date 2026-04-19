@@ -42,14 +42,6 @@ SOMA richtet sich an Raumfahrt-Interessierte, Lehrende, Schüler und alle, die e
 
 SOMA ist eine Progressive Web App, gebaut mit React, TypeScript und MapLibre GL JS. Orbit-Berechnungen laufen in einem Web Worker, damit die Oberfläche auch bei vielen Satelliten flüssig bleibt. Als Datenquelle dient CelesTrak. Die Karte basiert auf dem frei verfügbaren CARTO Dark Matter Style.
 
-## Status
-
-SOMA befindet sich in der Anfangsphase der Entwicklung. Das vollständige technische Konzept liegt vor; die Implementierung startet jetzt.
-
-## Lizenz
-
-MIT – frei nutzbar, frei veränderbar.
-
 ## Quellen & Weiterführendes
 
 - [CelesTrak](https://celestrak.org) – Datenquelle für Bahnelemente
