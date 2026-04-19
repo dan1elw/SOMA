@@ -13,41 +13,27 @@ interface Props {
   highlighted?: boolean
 }
 
-// Per-segment opacity based on each segment's position in the total track.
-// line-gradient restarts at 0 for every antimeridian-split feature, causing
-// apparent gaps; discrete opacity per segment avoids this (ADR-prescribed fallback).
 function buildGeojson(segments: GroundTrackSegment[]): GeoJSON.FeatureCollection {
-  const totalPoints = segments.reduce((n, s) => n + s.coordinates.length, 0)
-  let cursor = 0
-
   return {
     type: 'FeatureCollection',
-    features: segments.map((seg) => {
-      const start = cursor
-      const end = cursor + seg.coordinates.length - 1
-      cursor += seg.coordinates.length
-
-      const midFrac = (start + end) / 2 / Math.max(totalPoints - 1, 1)
-      // First 20 % of the total track fades 0 → 1; remainder stays at 1
-      const opacity = Math.min(1, midFrac / 0.2)
-
-      return {
-        type: 'Feature',
-        properties: { opacity },
-        geometry: { type: 'LineString', coordinates: seg.coordinates },
-      }
-    }),
+    features: segments.map((seg) => ({
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'LineString', coordinates: seg.coordinates },
+    })),
   }
 }
 
 export function GroundTrackLayer({ map, noradId, points, highlighted = false }: Props) {
   const sourceId = `track-source-${noradId}`
   const layerId = `track-layer-${noradId}`
+  // unwrapTrack always returns a single continuous segment, so line-gradient
+  // runs once across the full 90-minute track with no per-feature restarts.
   const segments = useAntimeridianSplit(points)
 
   // Create source + layer once
   useEffect(() => {
-    map.addSource(sourceId, { type: 'geojson', data: buildGeojson([]) })
+    map.addSource(sourceId, { type: 'geojson', data: buildGeojson([]), lineMetrics: true })
 
     map.addLayer({
       id: layerId,
@@ -56,8 +42,20 @@ export function GroundTrackLayer({ map, noradId, points, highlighted = false }: 
       layout: { 'line-join': 'round', 'line-cap': 'round' },
       paint: {
         'line-width': 1.5,
-        'line-color': TRACK_COLOR,
-        'line-opacity': ['coalesce', ['get', 'opacity'], 1] as maplibregl.ExpressionSpecification,
+        // Fades the oldest 20 % of the track to transparent; holds opaque to
+        // the current position. Works correctly because unwrapTrack produces
+        // a single LineString so line-progress spans the whole track.
+        'line-gradient': [
+          'interpolate',
+          ['linear'],
+          ['line-progress'],
+          0,
+          'rgba(125, 211, 252, 0)',
+          0.2,
+          TRACK_COLOR,
+          1,
+          TRACK_COLOR,
+        ],
       },
     })
 
