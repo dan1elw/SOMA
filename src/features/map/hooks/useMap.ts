@@ -17,7 +17,7 @@ export function useMap(
       center: [0, 20],
       zoom: 1.5,
       minZoom: 1,
-      attributionControl: true,
+      attributionControl: { compact: true },
     })
 
     return () => {
