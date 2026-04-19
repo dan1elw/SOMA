@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npm run *)",
+      "Bash(npm test:*)",
+      "Bash(npm create vite@latest:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx playwright:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git branch:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Read(//**)",
+      "Edit(./src/**)",
+      "Edit(./tests/**)",
+      "Edit(./docs/**)",
+      "Edit(./public/**)",
+      "Edit(./.github/**)",
+      "Edit(./package.json)",
+      "Edit(./tsconfig.json)",
+      "Edit(./vite.config.ts)",
+      "Edit(./vitest.config.ts)",
+      "Edit(./playwright.config.ts)",
+      "Edit(./.eslintrc.json)",
+      "Edit(./.prettierrc)",
+      "Edit(./index.html)",
+      "Edit(./README.md)",
+      "WebFetch(domain:celestrak.org)",
+      "WebFetch(domain:maplibre.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:public.ccsds.org)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git rebase:*)",
+      "Bash(sudo:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Edit(./.env)",
+      "Edit(./.env.*)",
+      "Edit(./.git/**)",
+      "Edit(./node_modules/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/post-edit-check.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/remind-architecture.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
