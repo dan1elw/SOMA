@@ -1,9 +1,8 @@
 # SOMA – Satellite Orbit Monitoring Application
 
 <p align="center">
-  <img src="docs/logo/soma.ico" />
+  <img src="docs/logo/soma.png" width="50%" />
 </p>
-
 
 **Sieh in Echtzeit, wo Satelliten gerade über dich hinwegfliegen.**
 
