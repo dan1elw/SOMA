@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // In CI the deploy workflow sets VITE_BASE to /<repo-name>/ for GitHub Pages.
+  // Locally (and in Vite preview) it falls back to '/'.
+  base: process.env['VITE_BASE'] ?? '/',
   plugins: [
     react(),
     tailwindcss(),
