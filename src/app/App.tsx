@@ -1,23 +1,27 @@
 import { useEffect } from 'react'
 import { MapView } from '../features/map/components/MapView'
 import { useOrbitWorker } from '../features/orbit/hooks/useOrbitWorker'
-import type { OMM } from '../types/omm'
+import { useSatelliteOMM } from '../features/catalog/hooks/useSatelliteOMM'
+import { useCatalog } from '../features/catalog/hooks/useCatalog'
+import { StaleBanner } from '../features/offline/components/StaleBanner'
 
-const ISS_URL = 'https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=json'
+const ISS_NORAD_ID = 25544
 
 function App() {
   const { addSat } = useOrbitWorker()
+  useCatalog()
+  const { data: issOMM } = useSatelliteOMM(ISS_NORAD_ID)
 
   useEffect(() => {
-    fetch(ISS_URL)
-      .then((r) => r.json())
-      .then((data: OMM[]) => {
-        if (data[0]) addSat(data[0])
-      })
-      .catch((err: unknown) => console.error('[SOMA] Failed to fetch ISS OMM:', err))
-  }, [addSat])
+    if (issOMM) addSat(issOMM)
+  }, [issOMM, addSat])
 
-  return <MapView />
+  return (
+    <div className="relative w-full h-full">
+      <StaleBanner />
+      <MapView />
+    </div>
+  )
 }
 
 export default App
