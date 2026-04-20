@@ -1,0 +1,35 @@
+/* SOMA design tokens — single source of truth for colors and typography */
+
+:root {
+  /* Surface palette */
+  --soma-bg: #0a0e14;
+  --soma-surface: #0d1117;
+  --soma-surface-hover: rgba(255, 255, 255, 0.05);
+  --soma-border: rgba(255, 255, 255, 0.1);
+
+  /* Text */
+  --soma-text: #e6e9ef;
+  --soma-text-muted: rgba(255, 255, 255, 0.4);
+  --soma-text-faint: rgba(255, 255, 255, 0.25);
+
+  /* Brand accents */
+  --soma-accent: #7dd3fc;
+  --soma-accent-alpha: rgba(125, 211, 252, 0.55);
+  --soma-accent-fade: rgba(125, 211, 252, 0);
+  --soma-gold: #e8c547;
+  --soma-gold-alpha: rgba(232, 197, 71, 0.6);
+
+  /* State */
+  --soma-danger: #f87171;
+  --soma-danger-bg: rgba(127, 29, 29, 0.8);
+
+  /* Typography */
+  --soma-font-sans: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --soma-font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --soma-font-mono: 'Geist Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* Motion */
+  --soma-duration-fast: 120ms;
+  --soma-duration-base: 200ms;
+  --soma-easing: cubic-bezier(0.4, 0, 0.2, 1);
+}

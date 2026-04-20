@@ -53,7 +53,7 @@ export function DetailPanel({ onRemoveSat }: Props) {
   const pos = positions[selectedNoradId]
 
   return (
-    <div className="absolute top-4 right-4 z-10 w-72 bg-[#0a0e14]/90 border border-white/10 rounded-md backdrop-blur-sm text-sm text-[#e6e9ef] overflow-hidden">
+    <div className="soma-panel-enter absolute top-4 right-4 z-10 w-72 bg-[#0a0e14]/90 border border-white/10 rounded-md backdrop-blur-sm text-sm text-[#e6e9ef] overflow-hidden">
       {/* Header */}
       <div className="flex items-start justify-between gap-2 px-4 pt-3 pb-2 border-b border-white/10">
         <div className="min-w-0">
@@ -68,17 +68,17 @@ export function DetailPanel({ onRemoveSat }: Props) {
               onRemoveSat(sat.noradId)
               setSelected(null)
             }}
-            title="Remove from map"
+            aria-label={`Remove ${sat.name} from map`}
             className="text-[10px] text-white/30 hover:text-red-400 transition-colors px-1.5 py-0.5 rounded border border-white/10 hover:border-red-400/30"
           >
             Remove
           </button>
           <button
             onClick={() => setSelected(null)}
-            title="Close panel"
+            aria-label="Close detail panel"
             className="text-white/30 hover:text-white transition-colors w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-xs"
           >
-            ✕
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
       </div>

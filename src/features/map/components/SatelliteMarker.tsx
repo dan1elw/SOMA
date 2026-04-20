@@ -23,7 +23,9 @@ function createMarkerEl(name: string): HTMLDivElement {
     'box-shadow:0 0 6px 2px rgba(125,211,252,0.55)',
     'cursor:pointer',
   ].join(';')
-  dot.setAttribute('aria-label', name)
+  dot.setAttribute('role', 'button')
+  dot.setAttribute('tabindex', '0')
+  dot.setAttribute('aria-label', `${name} — click to view details`)
 
   const label = document.createElement('span')
   label.textContent = name
@@ -33,7 +35,7 @@ function createMarkerEl(name: string): HTMLDivElement {
     'top:50%',
     'transform:translateY(-50%)',
     'font-size:11px',
-    'font-family:system-ui,sans-serif',
+    'font-family:var(--soma-font-sans,system-ui,sans-serif)',
     'color:#e6e9ef',
     'text-shadow:0 1px 3px rgba(0,0,0,0.9)',
     'white-space:nowrap',
@@ -55,6 +57,12 @@ export function SatelliteMarker({ map, satellite, position }: Props) {
     el.style.visibility = 'hidden'
     el.style.cursor = 'pointer'
     el.addEventListener('click', () => setSelected(satellite.noradId))
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        setSelected(satellite.noradId)
+      }
+    })
     const marker = new maplibregl.Marker({ element: el }).setLngLat([0, 0]).addTo(map)
     markerRef.current = marker
 

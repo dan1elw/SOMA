@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // In CI the deploy workflow sets VITE_BASE to /<repo-name>/ for GitHub Pages.
+  // Locally (and in Vite preview) it falls back to '/'.
+  base: process.env['VITE_BASE'] ?? '/',
   plugins: [
     react(),
     tailwindcss(),
@@ -37,11 +40,56 @@ export default defineConfig({
               },
             },
           },
+          {
+            // Google Fonts stylesheet — StaleWhileRevalidate so offline
+            // visits get the cached CSS immediately while refreshing in background.
+            urlPattern: ({ url }) => url.origin === 'https://fonts.googleapis.com',
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+            },
+          },
+          {
+            // Google Fonts woff2 files — CacheFirst, 1-year TTL (immutable URLs).
+            urlPattern: ({ url }) => url.origin === 'https://fonts.gstatic.com',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 365 * 24 * 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
       },
     }),
   ],
   worker: {
     format: 'es',
+  },
+  build: {
+    // MapLibre GL is inherently large (~1 MB gzipped ~272 kB); raise the
+    // warning threshold so CI doesn't flag it as an unexpected regression.
+    chunkSizeWarningLimit: 1100,
+    // Split large vendor libraries into separate chunks so the browser can
+    // cache them independently and avoid re-downloading on app updates.
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          // Split large vendor libraries so the browser can cache each
+          // independently — an app update only invalidates the app chunk.
+          if (id.includes('node_modules/maplibre-gl')) return 'maplibre'
+          if (id.includes('node_modules/satellite.js')) return 'satellite'
+          if (id.includes('node_modules/dexie')) return 'dexie'
+          if (id.includes('node_modules/@tanstack')) return 'query'
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom'))
+            return 'react'
+        },
+      },
+    },
   },
 })

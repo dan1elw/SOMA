@@ -43,6 +43,13 @@ export function SearchPanel({ onAddSat }: Props) {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Escape always dismisses and blurs, even when the listbox is closed.
+      if (e.key === 'Escape') {
+        setIsOpen(false)
+        setActiveIndex(-1)
+        inputRef.current?.blur()
+        return
+      }
       if (!isOpen || results.length === 0) return
       if (e.key === 'ArrowDown') {
         e.preventDefault()
@@ -54,10 +61,6 @@ export function SearchPanel({ onAddSat }: Props) {
         e.preventDefault()
         const entry = results[activeIndex]
         if (entry) void selectEntry(entry)
-      } else if (e.key === 'Escape') {
-        setIsOpen(false)
-        setActiveIndex(-1)
-        inputRef.current?.blur()
       }
     },
     [isOpen, results, activeIndex, selectEntry],
@@ -91,7 +94,7 @@ export function SearchPanel({ onAddSat }: Props) {
           aria-controls={isOpen && results.length > 0 ? listId : undefined}
           aria-activedescendant={activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined}
           disabled={loading}
-          className="w-full bg-[#0a0e14]/90 border border-white/10 rounded-md px-3 py-2 text-sm text-[#e6e9ef] placeholder-white/30 focus:outline-none focus:border-[#7dd3fc]/50 backdrop-blur-sm disabled:opacity-50"
+          className="w-full bg-[#0a0e14]/90 border border-white/10 rounded-md px-3 py-2 text-sm text-[#e6e9ef] placeholder-white/30 focus:outline-none focus:border-[#7dd3fc]/50 backdrop-blur-sm disabled:opacity-50 transition-[border-color] duration-[--soma-duration-base]"
         />
         {loading && <span className="absolute right-3 top-2 text-[#7dd3fc] text-xs">loading…</span>}
       </div>
@@ -103,7 +106,7 @@ export function SearchPanel({ onAddSat }: Props) {
           id={listId}
           role="listbox"
           aria-label="Satellite search results"
-          className="mt-1 bg-[#0d1117]/95 border border-white/10 rounded-md overflow-hidden backdrop-blur-sm"
+          className="soma-dropdown-enter mt-1 bg-[#0d1117]/95 border border-white/10 rounded-md overflow-hidden backdrop-blur-sm"
         >
           {results.map((entry, i) => (
             <li

@@ -22,13 +22,13 @@ function App() {
   }, [issOMM, addSat])
 
   return (
-    <div className="relative w-full h-full">
+    <main className="relative w-full h-full" aria-label="Satellite orbit map">
       <StaleBanner />
       <OfflineBanner />
       <MapView />
       <SearchPanel onAddSat={addSat} />
       <DetailPanel onRemoveSat={removeSat} />
-    </div>
+    </main>
   )
 }
 
