@@ -20,14 +20,20 @@ export function MapView() {
       {map &&
         satellites.map((sat) => (
           <Fragment key={sat.noradId}>
-            <SatelliteMarker map={map} satellite={sat} position={positions[sat.noradId]} />
-            {sat.orbitClass !== 'GEO' && (
+            {sat.orbitClass === 'GEO' ? (
+              // GEO: stationary DOM marker — no antimeridian concern
+              <SatelliteMarker map={map} satellite={sat} position={positions[sat.noradId]} />
+            ) : (
+              // Non-GEO: dot lives inside GroundTrackLayer so its coordinate
+              // always matches the unwrapped track endpoint exactly
               <GroundTrackLayer
                 map={map}
                 noradId={sat.noradId}
+                satelliteName={sat.name}
                 points={tracks[sat.noradId] ?? []}
                 currentPosition={positions[sat.noradId]}
                 highlighted={sat.noradId === selectedNoradId}
+                onSelect={() => useUIStore.getState().setSelected(sat.noradId)}
               />
             )}
           </Fragment>
