@@ -68,4 +68,25 @@ export default defineConfig({
   worker: {
     format: 'es',
   },
+  build: {
+    // MapLibre GL is inherently large (~1 MB gzipped ~272 kB); raise the
+    // warning threshold so CI doesn't flag it as an unexpected regression.
+    chunkSizeWarningLimit: 1100,
+    // Split large vendor libraries into separate chunks so the browser can
+    // cache them independently and avoid re-downloading on app updates.
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          // Split large vendor libraries so the browser can cache each
+          // independently — an app update only invalidates the app chunk.
+          if (id.includes('node_modules/maplibre-gl')) return 'maplibre'
+          if (id.includes('node_modules/satellite.js')) return 'satellite'
+          if (id.includes('node_modules/dexie')) return 'dexie'
+          if (id.includes('node_modules/@tanstack')) return 'query'
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom'))
+            return 'react'
+        },
+      },
+    },
+  },
 })
