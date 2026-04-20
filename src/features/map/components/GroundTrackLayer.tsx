@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import type maplibregl from 'maplibre-gl'
-import type { GroundTrackSegment } from '../../../types/satellite.ts'
+import type { GroundTrackSegment, SatellitePosition } from '../../../types/satellite.ts'
 import type { RawTrackPoint } from '../../orbit/worker/types.ts'
 import { useAntimeridianSplit } from '../hooks/useAntimeridianSplit.ts'
 
@@ -9,11 +9,14 @@ const TRACK_COLOR = '#7dd3fc'
 interface Props {
   map: maplibregl.Map
   noradId: number
+  satelliteName: string
   points: RawTrackPoint[]
+  currentPosition?: SatellitePosition | undefined
   highlighted?: boolean
+  onSelect: () => void
 }
 
-function buildGeojson(segments: GroundTrackSegment[]): GeoJSON.FeatureCollection {
+function buildTrackGeojson(segments: GroundTrackSegment[]): GeoJSON.FeatureCollection {
   return {
     type: 'FeatureCollection',
     features: segments.map((seg) => ({
@@ -24,27 +27,83 @@ function buildGeojson(segments: GroundTrackSegment[]): GeoJSON.FeatureCollection
   }
 }
 
-export function GroundTrackLayer({ map, noradId, points, highlighted = false }: Props) {
-  const sourceId = `track-source-${noradId}`
-  const layerId = `track-layer-${noradId}`
-  // unwrapTrack always returns a single continuous segment, so line-gradient
-  // runs once across the full 90-minute track with no per-feature restarts.
-  const segments = useAntimeridianSplit(points)
+function buildDotGeojson(coord: [number, number] | null, name: string): GeoJSON.FeatureCollection {
+  if (coord === null) return { type: 'FeatureCollection', features: [] }
+  return {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: { name },
+        geometry: { type: 'Point', coordinates: coord },
+      },
+    ],
+  }
+}
 
-  // Create source + layer once
+export function GroundTrackLayer({
+  map,
+  noradId,
+  satelliteName,
+  points,
+  currentPosition,
+  highlighted = false,
+  onSelect,
+}: Props) {
+  const trackSourceId = `track-source-${noradId}`
+  const dotSourceId = `dot-source-${noradId}`
+  const layerId = `track-layer-${noradId}`
+  const circleLayerId = `track-dot-${noradId}`
+  const labelLayerId = `track-label-${noradId}`
+
+  // Append the live position so the track terminates exactly at the dot.
+  const effectivePoints = useMemo(() => {
+    if (!currentPosition) return points
+    return [
+      ...points,
+      {
+        lon: currentPosition.longitude,
+        lat: currentPosition.latitude,
+        timestamp: currentPosition.timestamp,
+      },
+    ]
+  }, [points, currentPosition])
+
+  // unwrapTrack returns a single continuous segment; line-gradient spans
+  // the full 90-minute track without restarting per feature.
+  const segments = useAntimeridianSplit(effectivePoints)
+
+  // Dot coordinate = last unwrapped track point — same value the line ends at,
+  // so the circle is always pixel-perfect aligned with the track tip.
+  const dotCoord = useMemo((): [number, number] | null => {
+    const seg = segments[0]
+    if (!seg) return null
+    const last = seg.coordinates[seg.coordinates.length - 1]
+    return last ?? null
+  }, [segments])
+
+  // Create sources + layers once
   useEffect(() => {
-    map.addSource(sourceId, { type: 'geojson', data: buildGeojson([]), lineMetrics: true })
+    // Track source needs lineMetrics for line-gradient; keep it LineString-only.
+    map.addSource(trackSourceId, {
+      type: 'geojson',
+      data: buildTrackGeojson([]),
+      lineMetrics: true,
+    })
+    // Dot source is a plain Point source — no lineMetrics so the circle layer
+    // receives the feature correctly regardless of MapLibre version.
+    map.addSource(dotSourceId, {
+      type: 'geojson',
+      data: buildDotGeojson(null, ''),
+    })
 
     map.addLayer({
       id: layerId,
       type: 'line',
-      source: sourceId,
+      source: trackSourceId,
       layout: { 'line-join': 'round', 'line-cap': 'round' },
       paint: {
         'line-width': 1.5,
-        // Fades the oldest 20 % of the track to transparent; holds opaque to
-        // the current position. Works correctly because unwrapTrack produces
-        // a single LineString so line-progress spans the whole track.
         'line-gradient': [
           'interpolate',
           ['linear'],
@@ -59,25 +118,82 @@ export function GroundTrackLayer({ map, noradId, points, highlighted = false }: 
       },
     })
 
+    map.addLayer({
+      id: circleLayerId,
+      type: 'circle',
+      source: dotSourceId,
+      paint: {
+        'circle-radius': 5,
+        'circle-color': TRACK_COLOR,
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': 'rgba(255,255,255,0.8)',
+        'circle-pitch-alignment': 'viewport',
+      },
+    })
+
+    map.addLayer({
+      id: labelLayerId,
+      type: 'symbol',
+      source: dotSourceId,
+      layout: {
+        'text-field': ['get', 'name'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-anchor': 'left',
+        'text-offset': [1.2, 0],
+        'text-allow-overlap': true,
+        'text-ignore-placement': true,
+      },
+      paint: {
+        'text-color': '#e6e9ef',
+        'text-halo-color': 'rgba(0,0,0,0.9)',
+        'text-halo-width': 1,
+      },
+    })
+
+    const handleClick = () => onSelect()
+    const setCursor = () => {
+      map.getCanvas().style.cursor = 'pointer'
+    }
+    const clearCursor = () => {
+      map.getCanvas().style.cursor = ''
+    }
+
+    map.on('click', circleLayerId, handleClick)
+    map.on('mouseenter', circleLayerId, setCursor)
+    map.on('mouseleave', circleLayerId, clearCursor)
+
     return () => {
+      map.off('click', circleLayerId, handleClick)
+      map.off('mouseenter', circleLayerId, setCursor)
+      map.off('mouseleave', circleLayerId, clearCursor)
+      if (map.getLayer(labelLayerId)) map.removeLayer(labelLayerId)
+      if (map.getLayer(circleLayerId)) map.removeLayer(circleLayerId)
       if (map.getLayer(layerId)) map.removeLayer(layerId)
-      if (map.getSource(sourceId)) map.removeSource(sourceId)
+      if (map.getSource(dotSourceId)) map.removeSource(dotSourceId)
+      if (map.getSource(trackSourceId)) map.removeSource(trackSourceId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, noradId])
 
-  // Update line width when highlight changes
+  // Update line-width on highlight change
   useEffect(() => {
     if (map.getLayer(layerId)) {
       map.setPaintProperty(layerId, 'line-width', highlighted ? 3 : 1.5)
     }
   }, [map, layerId, highlighted])
 
-  // Push updated track data into the source
+  // Push updated track data
   useEffect(() => {
-    const source = map.getSource(sourceId) as maplibregl.GeoJSONSource | undefined
-    source?.setData(buildGeojson(segments))
-  }, [map, sourceId, segments])
+    const source = map.getSource(trackSourceId) as maplibregl.GeoJSONSource | undefined
+    source?.setData(buildTrackGeojson(segments))
+  }, [map, trackSourceId, segments])
+
+  // Push updated dot data
+  useEffect(() => {
+    const source = map.getSource(dotSourceId) as maplibregl.GeoJSONSource | undefined
+    source?.setData(buildDotGeojson(dotCoord, satelliteName))
+  }, [map, dotSourceId, dotCoord, satelliteName])
 
   return null
 }
