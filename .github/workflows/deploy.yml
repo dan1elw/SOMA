@@ -2,6 +2,7 @@ name: Deploy
 
 on:
   push:
+    branches: [main]
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
@@ -11,13 +12,15 @@ permissions:
   id-token: write  # OIDC token required by actions/deploy-pages
 
 jobs:
-  build:
-    name: Build
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # full history needed for release note generation
 
       - uses: actions/setup-node@v4
         with:
@@ -26,11 +29,9 @@ jobs:
 
       - run: npm ci
 
-      - name: Build for GitHub Pages
+      - name: Build
         run: npm run build
         env:
-          # GitHub Pages serves the site under /<repo-name>/, so the asset
-          # paths in the built HTML must be relative to that sub-path.
           VITE_BASE: /${{ github.event.repository.name }}/
 
       - uses: actions/configure-pages@v4
@@ -39,21 +40,13 @@ jobs:
         with:
           path: dist/
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
 
   release:
     name: Create Release
-    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
