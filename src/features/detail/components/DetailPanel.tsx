@@ -53,7 +53,7 @@ export function DetailPanel({ onRemoveSat }: Props) {
   const pos = positions[selectedNoradId]
 
   return (
-    <div className="absolute bottom-4 right-4 z-10 w-72 bg-[#0a0e14]/90 border border-white/10 rounded-md backdrop-blur-sm text-sm text-[#e6e9ef] overflow-hidden">
+    <div className="absolute top-4 right-4 z-10 w-72 bg-[#0a0e14]/90 border border-white/10 rounded-md backdrop-blur-sm text-sm text-[#e6e9ef] overflow-hidden">
       {/* Header */}
       <div className="flex items-start justify-between gap-2 px-4 pt-3 pb-2 border-b border-white/10">
         <div className="min-w-0">
