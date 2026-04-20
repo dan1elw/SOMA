@@ -37,6 +37,30 @@ export default defineConfig({
               },
             },
           },
+          {
+            // Google Fonts stylesheet — StaleWhileRevalidate so offline
+            // visits get the cached CSS immediately while refreshing in background.
+            urlPattern: ({ url }) => url.origin === 'https://fonts.googleapis.com',
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+            },
+          },
+          {
+            // Google Fonts woff2 files — CacheFirst, 1-year TTL (immutable URLs).
+            urlPattern: ({ url }) => url.origin === 'https://fonts.gstatic.com',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 365 * 24 * 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
       },
     }),
