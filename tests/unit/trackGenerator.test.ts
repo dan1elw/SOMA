@@ -26,11 +26,11 @@ const ISS_OMM: OMM = {
 const NOW = new Date('2025-01-15T13:30:00.000Z') // 90 min after epoch
 
 describe('generatePastTrack', () => {
-  it('returns ~180 points for a 90-min track at 30s steps', () => {
+  it('returns ~540 points for a 90-min track at 10s steps', () => {
     const satrec = ommToSatrec(ISS_OMM)
     const points = generatePastTrack(satrec, 25544, NOW)
-    expect(points.length).toBeGreaterThanOrEqual(178)
-    expect(points.length).toBeLessThanOrEqual(182)
+    expect(points.length).toBeGreaterThanOrEqual(538)
+    expect(points.length).toBeLessThanOrEqual(542)
   })
 
   it('all points have valid lat/lon ranges', () => {
@@ -56,6 +56,6 @@ describe('generatePastTrack', () => {
     const satrec = ommToSatrec(ISS_OMM)
     const points = generatePastTrack(satrec, 25544, NOW)
     const last = points[points.length - 1]!
-    expect(NOW.getTime() - last.timestamp).toBeLessThanOrEqual(30_000)
+    expect(NOW.getTime() - last.timestamp).toBeLessThanOrEqual(10_000)
   })
 })
