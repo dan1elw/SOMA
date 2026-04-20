@@ -68,17 +68,17 @@ export function DetailPanel({ onRemoveSat }: Props) {
               onRemoveSat(sat.noradId)
               setSelected(null)
             }}
-            title="Remove from map"
+            aria-label={`Remove ${sat.name} from map`}
             className="text-[10px] text-white/30 hover:text-red-400 transition-colors px-1.5 py-0.5 rounded border border-white/10 hover:border-red-400/30"
           >
             Remove
           </button>
           <button
             onClick={() => setSelected(null)}
-            title="Close panel"
+            aria-label="Close detail panel"
             className="text-white/30 hover:text-white transition-colors w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-xs"
           >
-            ✕
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
       </div>
