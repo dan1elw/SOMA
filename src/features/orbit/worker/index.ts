@@ -78,6 +78,15 @@ self.onmessage = (event: MessageEvent<WorkerInMessage>) => {
       payload: { noradId, points: track },
     }
     self.postMessage(trackMsg)
+
+    const initialPos = propagatePosition(satrec, now, noradId)
+    if (initialPos !== null) {
+      self.postMessage({
+        type: 'POSITION_BATCH',
+        payload: { positions: [initialPos], timestamp: now.getTime() },
+      } satisfies WorkerOutMessage)
+    }
+
     startTick()
     return
   }

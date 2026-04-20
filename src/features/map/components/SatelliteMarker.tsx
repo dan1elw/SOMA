@@ -26,11 +26,11 @@ function createMarkerEl(name: string): HTMLDivElement {
 export function SatelliteMarker({ map, satellite, position }: Props) {
   const markerRef = useRef<maplibregl.Marker | null>(null)
 
-  // Create the marker once per satellite
+  // Create the marker hidden; shown once the first position arrives.
   useEffect(() => {
-    const marker = new maplibregl.Marker({ element: createMarkerEl(satellite.name) })
-      .setLngLat([0, 0])
-      .addTo(map)
+    const el = createMarkerEl(satellite.name)
+    el.style.visibility = 'hidden'
+    const marker = new maplibregl.Marker({ element: el }).setLngLat([0, 0]).addTo(map)
     markerRef.current = marker
 
     return () => {
@@ -44,6 +44,7 @@ export function SatelliteMarker({ map, satellite, position }: Props) {
   useEffect(() => {
     if (position && markerRef.current) {
       markerRef.current.setLngLat([position.longitude, position.latitude])
+      markerRef.current.getElement().style.visibility = 'visible'
     }
   }, [position])
 
