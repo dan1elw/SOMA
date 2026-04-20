@@ -11,7 +11,7 @@ interface Props {
   noradId: number
   satelliteName: string
   points: RawTrackPoint[]
-  currentPosition?: SatellitePosition
+  currentPosition?: SatellitePosition | undefined
   highlighted?: boolean
   onSelect: () => void
 }
