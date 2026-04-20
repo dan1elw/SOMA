@@ -10,24 +10,28 @@ interface Props {
 }
 
 function createMarkerEl(name: string): HTMLDivElement {
-  const wrapper = document.createElement('div')
-  wrapper.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer'
-  wrapper.setAttribute('aria-label', name)
-
+  // The dot IS the marker element so MapLibre's center-anchor stays on the
+  // satellite coordinate. The label hangs to the right via absolute positioning.
   const dot = document.createElement('div')
   dot.style.cssText = [
+    'position:relative',
     'width:10px',
     'height:10px',
     'border-radius:50%',
     'background:#7dd3fc',
     'border:1.5px solid rgba(255,255,255,0.8)',
     'box-shadow:0 0 6px 2px rgba(125,211,252,0.55)',
-    'flex-shrink:0',
+    'cursor:pointer',
   ].join(';')
+  dot.setAttribute('aria-label', name)
 
   const label = document.createElement('span')
   label.textContent = name
   label.style.cssText = [
+    'position:absolute',
+    'left:14px',
+    'top:50%',
+    'transform:translateY(-50%)',
     'font-size:11px',
     'font-family:system-ui,sans-serif',
     'color:#e6e9ef',
@@ -37,9 +41,8 @@ function createMarkerEl(name: string): HTMLDivElement {
     'user-select:none',
   ].join(';')
 
-  wrapper.appendChild(dot)
-  wrapper.appendChild(label)
-  return wrapper
+  dot.appendChild(label)
+  return dot
 }
 
 export function SatelliteMarker({ map, satellite, position }: Props) {
