@@ -16,26 +16,29 @@ interface Props {
   onSelect: () => void
 }
 
-function buildGeojson(
-  segments: GroundTrackSegment[],
-  dotCoord: [number, number] | null,
-  name: string,
-): GeoJSON.FeatureCollection {
-  const features: GeoJSON.Feature[] = segments.map((seg) => ({
-    type: 'Feature',
-    properties: {},
-    geometry: { type: 'LineString', coordinates: seg.coordinates },
-  }))
-
-  if (dotCoord !== null) {
-    features.push({
+function buildTrackGeojson(segments: GroundTrackSegment[]): GeoJSON.FeatureCollection {
+  return {
+    type: 'FeatureCollection',
+    features: segments.map((seg) => ({
       type: 'Feature',
-      properties: { name },
-      geometry: { type: 'Point', coordinates: dotCoord },
-    })
+      properties: {},
+      geometry: { type: 'LineString', coordinates: seg.coordinates },
+    })),
   }
+}
 
-  return { type: 'FeatureCollection', features }
+function buildDotGeojson(coord: [number, number] | null, name: string): GeoJSON.FeatureCollection {
+  if (coord === null) return { type: 'FeatureCollection', features: [] }
+  return {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: { name },
+        geometry: { type: 'Point', coordinates: coord },
+      },
+    ],
+  }
 }
 
 export function GroundTrackLayer({
@@ -47,12 +50,13 @@ export function GroundTrackLayer({
   highlighted = false,
   onSelect,
 }: Props) {
-  const sourceId = `track-source-${noradId}`
+  const trackSourceId = `track-source-${noradId}`
+  const dotSourceId = `dot-source-${noradId}`
   const layerId = `track-layer-${noradId}`
   const circleLayerId = `track-dot-${noradId}`
   const labelLayerId = `track-label-${noradId}`
 
-  // Append the live position so the track terminates exactly at the marker.
+  // Append the live position so the track terminates exactly at the dot.
   const effectivePoints = useMemo(() => {
     if (!currentPosition) return points
     return [
@@ -70,8 +74,7 @@ export function GroundTrackLayer({
   const segments = useAntimeridianSplit(effectivePoints)
 
   // Dot coordinate = last unwrapped track point — same value the line ends at,
-  // so circle and track tip are always pixel-perfect aligned regardless of
-  // antimeridian unwrapping.
+  // so the circle is always pixel-perfect aligned with the track tip.
   const dotCoord = useMemo((): [number, number] | null => {
     const seg = segments[0]
     if (!seg) return null
@@ -79,18 +82,25 @@ export function GroundTrackLayer({
     return last ?? null
   }, [segments])
 
-  // Create source + layers once
+  // Create sources + layers once
   useEffect(() => {
-    map.addSource(sourceId, {
+    // Track source needs lineMetrics for line-gradient; keep it LineString-only.
+    map.addSource(trackSourceId, {
       type: 'geojson',
-      data: buildGeojson([], null, ''),
+      data: buildTrackGeojson([]),
       lineMetrics: true,
+    })
+    // Dot source is a plain Point source — no lineMetrics so the circle layer
+    // receives the feature correctly regardless of MapLibre version.
+    map.addSource(dotSourceId, {
+      type: 'geojson',
+      data: buildDotGeojson(null, ''),
     })
 
     map.addLayer({
       id: layerId,
       type: 'line',
-      source: sourceId,
+      source: trackSourceId,
       layout: { 'line-join': 'round', 'line-cap': 'round' },
       paint: {
         'line-width': 1.5,
@@ -111,8 +121,7 @@ export function GroundTrackLayer({
     map.addLayer({
       id: circleLayerId,
       type: 'circle',
-      source: sourceId,
-      filter: ['==', ['geometry-type'], 'Point'],
+      source: dotSourceId,
       paint: {
         'circle-radius': 5,
         'circle-color': TRACK_COLOR,
@@ -125,8 +134,7 @@ export function GroundTrackLayer({
     map.addLayer({
       id: labelLayerId,
       type: 'symbol',
-      source: sourceId,
-      filter: ['==', ['geometry-type'], 'Point'],
+      source: dotSourceId,
       layout: {
         'text-field': ['get', 'name'],
         'text-font': ['Noto Sans Regular'],
@@ -162,7 +170,8 @@ export function GroundTrackLayer({
       if (map.getLayer(labelLayerId)) map.removeLayer(labelLayerId)
       if (map.getLayer(circleLayerId)) map.removeLayer(circleLayerId)
       if (map.getLayer(layerId)) map.removeLayer(layerId)
-      if (map.getSource(sourceId)) map.removeSource(sourceId)
+      if (map.getSource(dotSourceId)) map.removeSource(dotSourceId)
+      if (map.getSource(trackSourceId)) map.removeSource(trackSourceId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, noradId])
@@ -174,11 +183,17 @@ export function GroundTrackLayer({
     }
   }, [map, layerId, highlighted])
 
-  // Push updated data into the source
+  // Push updated track data
   useEffect(() => {
-    const source = map.getSource(sourceId) as maplibregl.GeoJSONSource | undefined
-    source?.setData(buildGeojson(segments, dotCoord, satelliteName))
-  }, [map, sourceId, segments, dotCoord, satelliteName])
+    const source = map.getSource(trackSourceId) as maplibregl.GeoJSONSource | undefined
+    source?.setData(buildTrackGeojson(segments))
+  }, [map, trackSourceId, segments])
+
+  // Push updated dot data
+  useEffect(() => {
+    const source = map.getSource(dotSourceId) as maplibregl.GeoJSONSource | undefined
+    source?.setData(buildDotGeojson(dotCoord, satelliteName))
+  }, [map, dotSourceId, dotCoord, satelliteName])
 
   return null
 }
