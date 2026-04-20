@@ -10,18 +10,36 @@ interface Props {
 }
 
 function createMarkerEl(name: string): HTMLDivElement {
-  const el = document.createElement('div')
-  el.style.cssText = [
+  const wrapper = document.createElement('div')
+  wrapper.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer'
+  wrapper.setAttribute('aria-label', name)
+
+  const dot = document.createElement('div')
+  dot.style.cssText = [
     'width:10px',
     'height:10px',
     'border-radius:50%',
     'background:#7dd3fc',
     'border:1.5px solid rgba(255,255,255,0.8)',
     'box-shadow:0 0 6px 2px rgba(125,211,252,0.55)',
-    'cursor:pointer',
+    'flex-shrink:0',
   ].join(';')
-  el.setAttribute('aria-label', name)
-  return el
+
+  const label = document.createElement('span')
+  label.textContent = name
+  label.style.cssText = [
+    'font-size:11px',
+    'font-family:system-ui,sans-serif',
+    'color:#e6e9ef',
+    'text-shadow:0 1px 3px rgba(0,0,0,0.9)',
+    'white-space:nowrap',
+    'pointer-events:none',
+    'user-select:none',
+  ].join(';')
+
+  wrapper.appendChild(dot)
+  wrapper.appendChild(label)
+  return wrapper
 }
 
 export function SatelliteMarker({ map, satellite, position }: Props) {
