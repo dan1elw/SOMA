@@ -43,6 +43,13 @@ export function SearchPanel({ onAddSat }: Props) {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Escape always dismisses and blurs, even when the listbox is closed.
+      if (e.key === 'Escape') {
+        setIsOpen(false)
+        setActiveIndex(-1)
+        inputRef.current?.blur()
+        return
+      }
       if (!isOpen || results.length === 0) return
       if (e.key === 'ArrowDown') {
         e.preventDefault()
@@ -54,10 +61,6 @@ export function SearchPanel({ onAddSat }: Props) {
         e.preventDefault()
         const entry = results[activeIndex]
         if (entry) void selectEntry(entry)
-      } else if (e.key === 'Escape') {
-        setIsOpen(false)
-        setActiveIndex(-1)
-        inputRef.current?.blur()
       }
     },
     [isOpen, results, activeIndex, selectEntry],
