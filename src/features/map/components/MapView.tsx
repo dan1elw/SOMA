@@ -5,6 +5,7 @@ import { SatelliteMarker } from './SatelliteMarker'
 import { GroundTrackLayer } from './GroundTrackLayer'
 import { useActiveSatellitesStore } from '../../../store/activeSatellitesStore'
 import { usePositionsStore } from '../../../store/positionsStore'
+import { useUIStore } from '../../../store/uiStore'
 
 export function MapView() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -12,6 +13,7 @@ export function MapView() {
   const satellites = useActiveSatellitesStore((s) => s.satellites)
   const positions = usePositionsStore((s) => s.positions)
   const tracks = usePositionsStore((s) => s.tracks)
+  const selectedNoradId = useUIStore((s) => s.selectedNoradId)
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
@@ -24,6 +26,7 @@ export function MapView() {
                 map={map}
                 noradId={sat.noradId}
                 points={tracks[sat.noradId] ?? []}
+                highlighted={sat.noradId === selectedNoradId}
               />
             )}
           </Fragment>

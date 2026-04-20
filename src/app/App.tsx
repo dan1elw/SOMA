@@ -4,11 +4,13 @@ import { useOrbitWorker } from '../features/orbit/hooks/useOrbitWorker'
 import { useSatelliteOMM } from '../features/catalog/hooks/useSatelliteOMM'
 import { useCatalog } from '../features/catalog/hooks/useCatalog'
 import { StaleBanner } from '../features/offline/components/StaleBanner'
+import { SearchPanel } from '../features/search/components/SearchPanel'
+import { DetailPanel } from '../features/detail/components/DetailPanel'
 
 const ISS_NORAD_ID = 25544
 
 function App() {
-  const { addSat } = useOrbitWorker()
+  const { addSat, removeSat } = useOrbitWorker()
   useCatalog()
   const { data: issOMM } = useSatelliteOMM(ISS_NORAD_ID)
 
@@ -20,6 +22,8 @@ function App() {
     <div className="relative w-full h-full">
       <StaleBanner />
       <MapView />
+      <SearchPanel onAddSat={addSat} />
+      <DetailPanel onRemoveSat={removeSat} />
     </div>
   )
 }
