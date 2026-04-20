@@ -4,6 +4,8 @@ import { useOrbitWorker } from '../features/orbit/hooks/useOrbitWorker'
 import { useSatelliteOMM } from '../features/catalog/hooks/useSatelliteOMM'
 import { useCatalog } from '../features/catalog/hooks/useCatalog'
 import { StaleBanner } from '../features/offline/components/StaleBanner'
+import { OfflineBanner } from '../features/offline/components/OfflineBanner'
+import { useNetworkStatus } from '../features/offline/hooks/useNetworkStatus'
 import { SearchPanel } from '../features/search/components/SearchPanel'
 import { DetailPanel } from '../features/detail/components/DetailPanel'
 
@@ -13,6 +15,7 @@ function App() {
   const { addSat, removeSat } = useOrbitWorker()
   useCatalog()
   const { data: issOMM } = useSatelliteOMM(ISS_NORAD_ID)
+  useNetworkStatus()
 
   useEffect(() => {
     if (issOMM) addSat(issOMM)
@@ -21,6 +24,7 @@ function App() {
   return (
     <div className="relative w-full h-full">
       <StaleBanner />
+      <OfflineBanner />
       <MapView />
       <SearchPanel onAddSat={addSat} />
       <DetailPanel onRemoveSat={removeSat} />
