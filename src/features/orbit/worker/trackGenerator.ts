@@ -3,7 +3,7 @@ import { propagatePosition } from './propagator.ts'
 import type { RawTrackPoint } from './types.ts'
 
 const TRACK_DURATION_MS = 90 * 60 * 1000
-const STEP_MS = 30_000 // 180 points max
+const STEP_MS = 10_000 // ~540 points over 90 min — smooth at LEO speeds
 
 export function generatePastTrack(satrec: SatRec, noradId: number, now: Date): RawTrackPoint[] {
   const points: RawTrackPoint[] = []
