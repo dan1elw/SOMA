@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import type { ActiveSatellite, SatellitePosition } from '../../../types/satellite.ts'
+import { useUIStore } from '../../../store/uiStore.ts'
 
 interface Props {
   map: maplibregl.Map
@@ -25,11 +26,14 @@ function createMarkerEl(name: string): HTMLDivElement {
 
 export function SatelliteMarker({ map, satellite, position }: Props) {
   const markerRef = useRef<maplibregl.Marker | null>(null)
+  const setSelected = useUIStore((s) => s.setSelected)
 
   // Create the marker hidden; shown once the first position arrives.
   useEffect(() => {
     const el = createMarkerEl(satellite.name)
     el.style.visibility = 'hidden'
+    el.style.cursor = 'pointer'
+    el.addEventListener('click', () => setSelected(satellite.noradId))
     const marker = new maplibregl.Marker({ element: el }).setLngLat([0, 0]).addTo(map)
     markerRef.current = marker
 
