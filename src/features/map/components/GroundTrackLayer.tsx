@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import type maplibregl from 'maplibre-gl'
-import type { GroundTrackSegment } from '../../../types/satellite.ts'
+import type { GroundTrackSegment, SatellitePosition } from '../../../types/satellite.ts'
 import type { RawTrackPoint } from '../../orbit/worker/types.ts'
 import { useAntimeridianSplit } from '../hooks/useAntimeridianSplit.ts'
 
@@ -10,6 +10,7 @@ interface Props {
   map: maplibregl.Map
   noradId: number
   points: RawTrackPoint[]
+  currentPosition?: SatellitePosition
   highlighted?: boolean
 }
 
@@ -24,12 +25,33 @@ function buildGeojson(segments: GroundTrackSegment[]): GeoJSON.FeatureCollection
   }
 }
 
-export function GroundTrackLayer({ map, noradId, points, highlighted = false }: Props) {
+export function GroundTrackLayer({
+  map,
+  noradId,
+  points,
+  currentPosition,
+  highlighted = false,
+}: Props) {
   const sourceId = `track-source-${noradId}`
   const layerId = `track-layer-${noradId}`
+
+  // Append the live position as the final point so the track always terminates
+  // at the marker rather than lagging by up to MIN_TRACK_INTERVAL_MS (25 s).
+  const effectivePoints = useMemo(() => {
+    if (!currentPosition) return points
+    return [
+      ...points,
+      {
+        lon: currentPosition.longitude,
+        lat: currentPosition.latitude,
+        timestamp: currentPosition.timestamp,
+      },
+    ]
+  }, [points, currentPosition])
+
   // unwrapTrack always returns a single continuous segment, so line-gradient
   // runs once across the full 90-minute track with no per-feature restarts.
-  const segments = useAntimeridianSplit(points)
+  const segments = useAntimeridianSplit(effectivePoints)
 
   // Create source + layer once
   useEffect(() => {

@@ -26,6 +26,7 @@ export function MapView() {
                 map={map}
                 noradId={sat.noradId}
                 points={tracks[sat.noradId] ?? []}
+                currentPosition={positions[sat.noradId]}
                 highlighted={sat.noradId === selectedNoradId}
               />
             )}
