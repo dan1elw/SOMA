@@ -1,4 +1,4 @@
-# SOMA - Satellite Orbit Monitoring Application
+# SOMA — Satellite Orbit Monitoring Application
 
 <p align="center">
   <img src="docs/logo/soma.png" width="30%" />
@@ -13,51 +13,73 @@
   <a href="https://dan1elw.github.io/SOMA/"><img src="https://img.shields.io/badge/live-GitHub%20Pages-0a66c2" alt="Live on GitHub Pages"></a>
 </p>
 
-**Sieh in Echtzeit, wo Satelliten gerade über dich hinwegfliegen.**
+SOMA is a browser-based application that tracks satellites live on a dark world map — including their ground track from the last 90 minutes. Open the page and you immediately see the International Space Station (ISS) orbiting at roughly 28,000 km/h. Use the search bar to add more satellites: the Hubble Space Telescope, Starlink birds, or any of the ~11,000 active objects currently in orbit.
 
-SOMA ist eine Web-Anwendung, die Satelliten live auf einer dunklen Weltkarte zeigt – inklusive ihres Flugwegs der letzten 90 Minuten. Öffne die Seite im Browser, und du siehst sofort die Internationale Raumstation (ISS), wie sie mit rund 28.000 km/h um die Erde kreist. Über eine Suchleiste kannst du weitere Satelliten hinzufügen – zum Beispiel das Hubble-Weltraumteleskop, Starlink-Satelliten oder jeden anderen der rund 11.000 aktiven Objekte im Erdorbit.
+## What makes SOMA different
 
-## Was SOMA besonders macht
+- **Runs entirely in the browser.** No account, no installation, no server. All calculations happen locally on your device.
+- **Works offline.** Once loaded, SOMA keeps working without an internet connection, using the last known orbital data.
+- **No trackers, no cookies.** Your data never leaves the browser.
+- **Clarity over clutter.** SOMA shows a focused set of satellites beautifully rather than overwhelming you with thousands at once.
 
-- **Läuft komplett im Browser.** Keine Registrierung, keine Installation, keine Server. Alle Berechnungen passieren lokal auf deinem Gerät.
-- **Offline-fähig.** Einmal geladen, funktioniert SOMA auch ohne Internetverbindung weiter – mit den zuletzt bekannten Daten.
-- **Keine Tracker, keine Cookies.** Deine Daten verlassen den Browser nicht.
-- **Ästhetik statt Datenflut.** SOMA zeigt wenige Satelliten schön, statt tausende gleichzeitig zu überladen. Der Fokus liegt auf Beobachtung, nicht auf Analyse.
+## How it works
 
-## Wie funktioniert das überhaupt?
+A satellite doesn't drift randomly — its path follows the laws of orbital mechanics and can be calculated from a small set of numbers called **orbital elements**: altitude, inclination, velocity, and position at a reference time. With these numbers, you can compute where the satellite will be one second, one minute, or one hour from now.
 
-Ein Satellit fliegt nicht zufällig durch den Weltraum – seine Bahn folgt den Gesetzen der Himmelsmechanik und lässt sich aus wenigen Zahlen berechnen. Diese Zahlen nennt man **Bahnelemente**: Höhe, Neigung, Geschwindigkeit, aktuelle Position zu einem bestimmten Zeitpunkt. Wer sie kennt, kann ausrechnen, wo der Satellit in einer Sekunde, einer Minute oder einer Stunde sein wird.
+SOMA fetches orbital elements from **CelesTrak** — a long-established public service that processes data from the US Space Surveillance Network. An in-browser algorithm (SGP4/SDP4) converts these numbers into real-time positions rendered on the map.
 
-SOMA lädt diese Bahnelemente vom **CelesTrak**-Katalog – einem öffentlichen, seit Jahrzehnten etablierten Dienst, der Daten des US-Raumüberwachungsnetzwerks aufbereitet. Ein im Browser laufender Algorithmus (SGP4) verwandelt diese Zahlen in Echtzeit-Positionen, die auf der Karte dargestellt werden.
+### OMM — the modern orbital data format
 
-### TLE und OMM – kurz erklärt
+Orbital elements come in different formats:
 
-Die Bahnelemente werden in standardisierten Formaten ausgetauscht:
+- **TLE (Two-Line Element Set)** is the classic 1960s format: two lines of text with fixed column positions. Compact, but hard to read and increasingly strained by the growing number of satellites.
+- **OMM (Orbit Mean-Elements Message)** is the modern successor, standardised by the international space agency body CCSDS. OMM is JSON-based, human-readable, extensible, and future-proof. CelesTrak is actively migrating to it.
 
-- **TLE (Two-Line Element Set)** ist das klassische Format aus den 1960er-Jahren: zwei Zeilen Text mit festen Spaltenpositionen. Es ist kompakt, aber schwer zu lesen und stößt heute an Grenzen – etwa bei der Zahl möglicher Satelliten-IDs.
-- **OMM (Orbit Mean-Elements Message)** ist der moderne Nachfolger, standardisiert vom internationalen Raumfahrt-Gremium CCSDS. OMM ist im JSON-Format, gut lesbar, erweiterbar und zukunftssicher. CelesTrak stellt beide Formate bereit, migriert aber aktiv auf OMM.
+SOMA uses OMM exclusively. This means SOMA will continue to work correctly even as the industry moves away from TLE.
 
-SOMA nutzt ausschließlich OMM. Für dich als Nutzer macht das keinen Unterschied – aber es bedeutet, dass SOMA auch dann noch funktioniert, wenn TLE eines Tages abgelöst wird.
+## What you can do in SOMA
 
-## Was du in SOMA tun kannst
+- Watch the ISS orbit the Earth (loaded automatically on first open).
+- Search satellites by name or NORAD ID — e.g. "Hubble" or "25544".
+- Track multiple satellites simultaneously.
+- Click any satellite to see live data: coordinates, altitude above Earth, and velocity.
+- View the 90-minute ground track — the line on the Earth's surface the satellite has passed over. Geostationary satellites, which move with the Earth, are shown as fixed points with no track.
+- Use SOMA offline: the app shell, map tiles, and orbital data are all cached locally.
 
-- Die ISS beim Umkreisen der Erde beobachten (beim ersten Öffnen automatisch sichtbar).
-- Satelliten nach Name oder NORAD-ID suchen – etwa „Hubble" oder „25544".
-- Mehrere Satelliten gleichzeitig verfolgen.
-- Auf einen Satelliten klicken und Live-Daten sehen: Koordinaten, Höhe über der Erde, Geschwindigkeit.
-- Den Ground Track ansehen – also die Linie auf der Erdoberfläche, über die der Satellit in den letzten 90 Minuten hinweggeflogen ist. Geostationäre Satelliten, die sich mit der Erde mitdrehen, werden als fester Punkt dargestellt.
+## Who SOMA is for
 
-## Für wen ist SOMA gedacht?
+SOMA is aimed at space enthusiasts, educators, students, and anyone curious about what's passing overhead. It is not a tool for professional orbit analysis or collision avoidance — dedicated software exists for that. SOMA is about the experience of watching the invisible traffic in orbit.
 
-SOMA richtet sich an Raumfahrt-Interessierte, Lehrende, Schüler und alle, die einfach neugierig sind, was gerade über ihren Köpfen passiert. Es ist kein Werkzeug für professionelle Bahnverfolgung oder Kollisionsanalyse – dafür gibt es spezialisierte Software. SOMA will das Erlebnis bieten, dem unsichtbaren Verkehr im Orbit zuzusehen.
+## Getting started (development)
 
-## Technischer Hintergrund (Kurzfassung)
+```bash
+git clone https://github.com/dan1elw/SOMA.git
+cd SOMA
+npm install
+npm run dev
+```
 
-SOMA ist eine Progressive Web App, gebaut mit React, TypeScript und MapLibre GL JS. Orbit-Berechnungen laufen in einem Web Worker, damit die Oberfläche auch bei vielen Satelliten flüssig bleibt. Als Datenquelle dient CelesTrak. Die Karte basiert auf dem frei verfügbaren CARTO Dark Matter Style.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-## Quellen & Weiterführendes
+### Available scripts
 
-- [CelesTrak](https://celestrak.org) – Datenquelle für Bahnelemente
-- [OMM-Standard (CCSDS 502.0-B)](https://public.ccsds.org) – das moderne Format
-- [satellite.js](https://github.com/shashwatak/satellite-js) – die Bibliothek hinter den Berechnungen
-- [MapLibre GL JS](https://maplibre.org) – die Kartentechnologie
+| Command             | Description                      |
+| ------------------- | -------------------------------- |
+| `npm run dev`       | Start development server         |
+| `npm run build`     | Production build                 |
+| `npm run preview`   | Preview production build locally |
+| `npm run typecheck` | TypeScript type checking         |
+| `npm run lint`      | ESLint                           |
+| `npm run test`      | Vitest unit tests                |
+| `npm run test:e2e`  | Playwright smoke tests           |
+
+## Tech stack
+
+React 19 + TypeScript 5 · Vite 6 · MapLibre GL JS · CARTO Dark Matter basemap · satellite.js (SGP4/SDP4) · Zustand · TanStack Query · Dexie.js (IndexedDB) · Tailwind CSS 4 · vite-plugin-pwa + Workbox
+
+## Sources & further reading
+
+- [CelesTrak](https://celestrak.org) — orbital element data source
+- [OMM standard (CCSDS 502.0-B)](https://public.ccsds.org) — the modern orbital data format
+- [satellite.js](https://github.com/shashwatak/satellite-js) — the SGP4/SDP4 propagation library
+- [MapLibre GL JS](https://maplibre.org) — the map rendering engine
