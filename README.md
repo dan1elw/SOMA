@@ -1,9 +1,7 @@
-# SOMA
-
-## Satellite Orbit Monitoring Application
+# SOMA - Satellite Orbit Monitoring Application
 
 <p align="center">
-  <img src="docs/logo/soma.png" width="50%" />
+  <img src="docs/logo/soma.png" width="30%" />
 </p>
 
 <p align="center">
