@@ -1,15 +1,18 @@
-# SOMA – Satellite Orbit Monitoring Application
+# SOMA
 
-<p align="center">
-  <a href="https://github.com/dan1elw/SOMA/actions/workflows/ci.yml"><img src="https://github.com/dan1elw/SOMA/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/dan1elw/SOMA/actions/workflows/deploy.yml"><img src="https://github.com/dan1elw/SOMA/actions/workflows/deploy.yml/badge.svg" alt="Deploy"></a>
-  <img src="https://img.shields.io/github/package-json/v/dan1elw/SOMA" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT">
-  <img src="https://img.shields.io/badge/PWA-ready-purple" alt="PWA">
-</p>
+## Satellite Orbit Monitoring Application
 
 <p align="center">
   <img src="docs/logo/soma.png" width="50%" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/dan1elw/SOMA/releases/latest"><img src="https://img.shields.io/github/v/release/dan1elw/SOMA" alt="Latest Release"></a>
+  <a href="https://github.com/dan1elw/SOMA/actions/workflows/ci.yml"><img src="https://github.com/dan1elw/SOMA/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/dan1elw/SOMA/actions/workflows/deploy.yml"><img src="https://github.com/dan1elw/SOMA/actions/workflows/deploy.yml/badge.svg" alt="Deploy"></a>
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT">
+  <img src="https://img.shields.io/badge/PWA-ready-purple" alt="PWA">
+  <a href="https://dan1elw.github.io/SOMA/"><img src="https://img.shields.io/badge/live-GitHub%20Pages-0a66c2" alt="Live on GitHub Pages"></a>
 </p>
 
 **Sieh in Echtzeit, wo Satelliten gerade über dich hinwegfliegen.**
