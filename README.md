@@ -1,6 +1,14 @@
 # SOMA – Satellite Orbit Monitoring Application
 
 <p align="center">
+  <a href="https://github.com/dan1elw/SOMA/actions/workflows/ci.yml"><img src="https://github.com/dan1elw/SOMA/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/dan1elw/SOMA/actions/workflows/deploy.yml"><img src="https://github.com/dan1elw/SOMA/actions/workflows/deploy.yml/badge.svg" alt="Deploy"></a>
+  <img src="https://img.shields.io/github/package-json/v/dan1elw/SOMA" alt="Version">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT">
+  <img src="https://img.shields.io/badge/PWA-ready-purple" alt="PWA">
+</p>
+
+<p align="center">
   <img src="docs/logo/soma.png" width="50%" />
 </p>
 
