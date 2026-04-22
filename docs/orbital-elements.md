@@ -24,9 +24,9 @@ Every orbit is an ellipse. The six classical elements pin down that ellipse comp
          │             *                                   │
          │          ·     ·                                │
          │       ·           ·                             │
-         │     ·    (Focus=   ·                            │
-         │    ·      Earth)    ·                           │
-         │    ·       ★        ·  ← a (semi-major axis)   │
+         │     ·    (Focus=    ·                           │
+         │    ·      Earth)     ·                          │
+         │    ·       ★         ·  ← a (semi-major axis)   │
          │     ·               ·                           │
          │       ·           ·                             │
          │          ·     ·                                │
