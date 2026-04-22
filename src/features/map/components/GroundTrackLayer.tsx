@@ -4,7 +4,8 @@ import type { GroundTrackSegment, SatellitePosition } from '../../../types/satel
 import type { RawTrackPoint } from '../../orbit/worker/types.ts'
 import { useAntimeridianSplit } from '../hooks/useAntimeridianSplit.ts'
 
-const TRACK_COLOR = '#7dd3fc'
+const SELECTED_COLOR = '#7dd3fc'
+const UNSELECTED_COLOR = '#94a3b8'
 
 interface Props {
   map: maplibregl.Map
@@ -109,11 +110,11 @@ export function GroundTrackLayer({
           ['linear'],
           ['line-progress'],
           0,
-          'rgba(125, 211, 252, 0)',
+          'rgba(148, 163, 184, 0)',
           0.2,
-          TRACK_COLOR,
+          UNSELECTED_COLOR,
           1,
-          TRACK_COLOR,
+          UNSELECTED_COLOR,
         ],
       },
     })
@@ -124,7 +125,7 @@ export function GroundTrackLayer({
       source: dotSourceId,
       paint: {
         'circle-radius': 5,
-        'circle-color': TRACK_COLOR,
+        'circle-color': UNSELECTED_COLOR,
         'circle-stroke-width': 1.5,
         'circle-stroke-color': 'rgba(255,255,255,0.8)',
         'circle-pitch-alignment': 'viewport',
@@ -176,12 +177,33 @@ export function GroundTrackLayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, noradId])
 
-  // Update line-width on highlight change
+  // Update line-width, color, and z-order on highlight change
   useEffect(() => {
+    const color = highlighted ? SELECTED_COLOR : UNSELECTED_COLOR
+    const fadeRgba = highlighted ? 'rgba(125, 211, 252, 0)' : 'rgba(148, 163, 184, 0)'
     if (map.getLayer(layerId)) {
       map.setPaintProperty(layerId, 'line-width', highlighted ? 3 : 1.5)
+      map.setPaintProperty(layerId, 'line-gradient', [
+        'interpolate',
+        ['linear'],
+        ['line-progress'],
+        0,
+        fadeRgba,
+        0.2,
+        color,
+        1,
+        color,
+      ])
+      if (highlighted) map.moveLayer(layerId)
     }
-  }, [map, layerId, highlighted])
+    if (map.getLayer(circleLayerId)) {
+      map.setPaintProperty(circleLayerId, 'circle-color', color)
+      if (highlighted) map.moveLayer(circleLayerId)
+    }
+    if (highlighted && map.getLayer(labelLayerId)) {
+      map.moveLayer(labelLayerId)
+    }
+  }, [map, layerId, circleLayerId, labelLayerId, highlighted])
 
   // Push updated track data
   useEffect(() => {
